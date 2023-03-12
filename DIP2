@@ -1,0 +1,489 @@
+```````Morphological
+clear all;
+clc;
+
+i=imread("C:\Users\Sumukh\Pictures\Camera Roll\Sumukh_image.jpeg");
+
+subplot(3,3,1);
+imshow(i);
+
+s = imcreatese("rect",3,3);
+
+d = imdilate(i,s);
+subplot(3,3,2);
+imshow(d);
+e = imerode(i,s);
+subplot(3,3,3);
+imshow(e);
+o = imopen(i,s);
+subplot(3,3,4);
+imshow(o);
+c = imclose(i,s);
+subplot(3,3,5);
+imshow(c);
+
+
+`````````Edge Detection 
+
+A) Ordinary 
+w1=[1 0;-1 0];
+w2=[1 -1;0 0];
+B)Robert
+w1=[1 0;0 -1];
+w2=[0 1;-1 0];
+C)Prewits 
+D)sobel
+E)All
+
+s=edge(i,'sobel')
+repeat same for prewits,canny,log
+
+
+clear all;
+clc;
+
+i=imread("C:\Users\Sumukh\Pictures\Camera Roll\Sumukh_image.jpeg");
+i=rgb2gray(i);
+i=double(i);
+[r,c]=size(i);
+
+
+for x=2:r-1
+    for y=2:c-1
+        a1(x,y)=w1(1)*i(x,y)+w1(2)*i(x,y+1)+w1(3)*i(x+1,y)+w1(4)*i(x+1,y+1);
+        a2(x,y)=w2(1)*i(x,y)+w2(2)*i(x,y+1)+w2(3)*i(x+1,y)+w2(4)*i(x+1,y+1);
+    end
+end
+a3=a1+a2
+subplot(2,2,1);
+imshow(uint8(a1))
+subplot(2,2,2);
+imshow(uint8(a2))
+subplot(2,2,3);
+imshow(uint8(a3))
+
+
+
+
+
+
+````````ButterWorth
+
+clc;
+original1=imread("C:\Users\Sumukh\Pictures\Camera Roll\Sumukh_image.jpeg");
+original=rgb2gray(original1);
+original=double(original);
+[m,n]=size(original);
+
+fc=30;
+
+N=1;
+
+a=round(m/2);
+b=round(n/2);
+
+H=zeros(m,n);
+for i=1:m
+    for j=1:n
+        d=((i-a)^2+(j-b)^2)^0.5;
+        H(i,j)=1/(1+((d/fc/fc)^(2*N)));
+        
+     end
+
+end
+
+original_freq=fftshift(fft2(original));
+
+applpf=(original_freq).*H;
+finalout=abs(ifft(applpf));
+
+subplot(2,2,1); imshow(original1);
+subplot(2,2,2); imshow(H);
+subplot(2,2,3); surf(H);
+subplot(2,2,4); imshow(uint8(finalout));
+
+
+
+```````Gaussian 
+
+clc;
+original1=imread("C:\Users\Sumukh\Pictures\Camera Roll\Sumukh_image.jpeg");
+original=rgb2gray(original1);
+original=double(original);
+[m,n]=size(original);
+
+fc=30;
+
+N=m;
+
+a=round(m/2);
+b=round(n/2);
+
+H=zeros(m,n);
+for i=1:m
+    for j=1:n
+        d=((i-a)^2+(j-b)^2)^0.5;
+        D=d*d;
+        H(i,j)=exp(-D/(2*fc*fc));
+        
+     end
+
+end
+
+original_freq=fftshift(fft2(original));
+
+applpf=(original_freq).*H;
+finalout=abs(ifft(applpf));
+
+subplot(2,2,1); imshow(original1);
+subplot(2,2,2); imshow(H);
+subplot(2,2,3); mesh(H);
+subplot(2,2,4); imshow(uint8(finalout));
+
+
+````````Color Model
+
+clc;
+a=imread("C:\Users\Sumukh\Pictures\Camera Roll\Sumukh_image.jpeg");
+a=double(a);
+[row ,col, dim]=size(a);
+
+red=a(:,:,1);
+green=a(:,:,2);
+blue=a(:,:,3);
+
+plane=zeros(row, col);
+
+RED=cat(3,red,plane,plane);
+GREEN=cat(3,plane,green,plane);
+BLUE=cat(3,plane,plane,blue);
+
+
+subplot(3,3,1);
+imshow(uint8(a));
+subplot(3,3,2);
+imshow(uint8(red));
+subplot(3,3,3);
+imshow(uint8(green));
+subplot(3,3,4);
+imshow(uint8(blue));
+subplot(3,3,5);
+imshow(uint8(a));
+subplot(3,3,6);
+imshow(uint8(RED));
+subplot(3,3,7);
+imshow(uint8(GREEN));
+subplot(3,3,8);
+imshow(uint8(BLUE));
+
+
+````````HPF LPF
+
+clc;
+
+a1=imread("C:\Users\Sumukh\Pictures\Camera Roll\Sumukh_image.jpeg");
+a=double(a1);
+[m,n]=size(a);
+
+w=[1 1 1;1 1 1;1 1 1];
+w1=[-1 -1 -1;-1 8 -1;-1 -1 -1];
+for i=2:m-1
+    for j=2:n-1
+        b(i,j)=[w(1)*a(i-1,j-1)+w(2)*a(i-1,j)+w(3)*a(i-1,j+1)+w(4)*a(i,j-1)+w(5)*a(i,j)+w(6)*a(i,j+1)+w(7)*a(i+1,j-1)+w(8)*a(i+1,j)+w(9)*a(i+1,j+1)]/9;
+        c(i,j)=[w1(1)*a(i-1,j+1)+w1(2)*a(i,j+1)+w1(3)*a(i+1,j+1)+w1(4)*a(i-1,j)+w1(5)*a(i,j)+w1(6)*a(i+1,j)+w1(7)*a(i-1,j-1)+w1(8)*a(i,j-1)+w1(9)*a(i+1,j-1)]/9;
+end
+end
+b(i,j)=[w(1)*a(i-1,j-1)+w(2)*a(i-1,j)+w(3)*a(i-1,j+1)+w(4)*a(i,j-1)+w(5)*a(i,j)+w(6)*a(i,j+1)+w(7)*a(i+1,j-1)+w(8)*a(i+1,j)+w(9)*a(i+1,j+1)]/9;
+figure(1);imshow(uint8(b));title("low pass image")   
+figure(2);imshow(uint8(c));title("High pass image")  
+figure(3);imshow(a1);title("Original image") 
+
+
+``````````Sobel LPF
+
+
+clc;
+
+a1=imread("C:\Users\Sumukh\Pictures\Camera Roll\Sumukh_image.jpeg");
+a=double(a1);
+[m,n]=size(a);
+
+w=[-1 -2 -1;0 0 0;1 2 1];
+w1=[-1 0 1;-2 0 2;-1 0 1];
+for i=2:m-1
+    for j=2:n-1
+        b(i,j)=[w(1)*a(i-1,j-1)+w(2)*a(i-1,j)+w(3)*a(i-1,j+1)+w(4)*a(i,j-1)+w(5)*a(i,j)+w(6)*a(i,j+1)+w(7)*a(i+1,j-1)+w(8)*a(i+1,j)+w(9)*a(i+1,j+1)];
+        c(i,j)=[w1(1)*a(i-1,j-1)+w1(2)*a(i-1,j)+w1(3)*a(i-1,j+1)+w1(4)*a(i,j-1)+w1(5)*a(i,j)+w1(6)*a(i,j+1)+w1(7)*a(i+1,j-1)+w1(8)*a(i+1,j)+w1(9)*a(i+1,j+1)];
+end
+end
+a3 = b+c
+figure(1);imshow(uint8(b));title("x gradient")   
+figure(2);imshow(uint8(c));title("y gradient") 
+figure(3);imshow(a3);title("Sobel")  
+figure(4);imshow(a1);title("Original image") 
+
+
+
+```````````Operations 
+
+````A) Negative 
+(Black in original will look white a//nd vice versa.Formula is : s=(L-1)-r, L is numbe//r of grfey levels ,256 )
+
+clc;
+original=imread("C:\Users\Sumukh\Pictures\Camera Roll\Sumukh_image.jpeg");
+imgdouble=double(original);
+//For 8 bit image
+c=255;
+negative=c-original;
+figure(1)
+imshow(original);
+figure(2)
+imshow(negative);
+
+````B) Thresholding 
+(Extreme contrast stretching (increase contrast o//f images by making dark portion darkerand bright// portion brighter)yields thresholding)
+
+
+clc;
+original=imread("e:\dip\cameraman.jpg");
+dup=original;
+[row column]=size(dup);
+thresh=input("Enter value of threshold");
+for i=1:row
+    for j=1:column
+        if(original(i,j)< thresh)
+            dup(i,j)=0;
+        else
+            dup(i,j)=255;
+        end
+     end
+end
+figure(1),imshow(original);
+figure(1),imshow(dup);
+
+
+```C) grey level without bg
+(n some application we not only need to enhance //band of grey levels but also to retain backgroun. )
+
+
+clc;
+original=imread("C:\Users\Sumukh\Pictures\Screenshots\abcc.jpg");
+doub=double(original);
+[row column]=size(doub);
+for i=1:1:row
+    for j=1:1:column
+        if((doub(i,j)> 50)) && (doub(i,j)<150)
+            doub(i,j)=0;
+        end
+     end
+end
+figure(1), imshow(original);
+figure(2),imshow(uint8(doub));
+
+```D) grey level with bg
+(in some application we not only need to enhance //band of grey levels but also to retain backgroun)
+
+
+
+clc;
+original=imread("C:\Users\Sumukh\Pictures\Screenshots\abcc.jpg");
+doub=double(original);
+[row column]=size(doub);
+for i=1:1:row
+    for j=1:1:column
+        if((doub(i,j)> 50)) && (doub(i,j)<150)
+            doub(i,j)=original(i,j);
+        end
+     end
+end
+figure(1), imshow(original);
+figure(2),imshow(uint8(doub));
+
+
+```E) Bit Plan
+
+(Bit plane slicing is used in image compression . 		
+an image8 bit word, then the 0th bit plane consists of  last bit of each grey value. as the last bit has the least effectin terms of the magnitude of the value, it is called LSB and the corresponding plane, a lsb plane. similarly 7th bit plane consists of first bit in each value. so it is MSB plane.for a grey scale image, we start by making it a matrix of type double and so we can perform arithmatic on the values. and now we isolate bit plane by diving matrix cd by successive powers of two , neglecting the remainder and checking whether final bit is 0 or 1 using mod function. )
+
+
+
+clc;
+
+c=imread("C:\Users\Sumukh\Pictures\Screenshots\abcc.jpg");
+
+
+cd = double(c);
+
+c1 = modulo(cd, 2);		// gives remainder
+c2 = modulo(floor(cd/2), 2);
+c3 = modulo(floor(cd/4), 2);
+c4 = modulo(floor(cd/8), 2);
+c5 = modulo(floor(cd/16), 2);
+c6 = modulo(floor(cd/32), 2);
+c7 = modulo(floor(cd/64), 2);
+c8 = modulo(floor(cd/128), 2);
+
+cc = (2 * (2 * (2 * (2 * (2 * (2 * (2 * c8) + c7) + c6) + c5) + c4) + c3) + c2) + c1);
+
+subplot(2, 5, 1);
+imshow(c);
+title('Original Image');
+
+subplot(2, 5, 2);
+imshow(c1);
+title('Bit Plane 1');
+subplot(2, 5, 3);
+imshow(c2);
+title('Bit Plane 2');
+subplot(2, 5, 4);
+imshow(c3);
+title('Bit Plane 3');
+subplot(2, 5, 5);
+imshow(c4);
+title('Bit Plane 4');
+subplot(2, 5, 6);
+imshow(c5);
+title('Bit Plane 5');
+subplot(2, 5, 7);
+imshow(c6);
+title('Bit Plane 6');
+subplot(2, 5, 8);
+imshow(c7);
+title('Bit Plane 7');
+subplot(2, 5, 9);
+imshow(c8);
+title('Bit Plane 8');
+
+subplot(2, 5, 10);
+imshow(uint8(cc));
+title('Recombined Image');
+
+
+
+
+
+````````` IFFT 
+
+clc ;
+clear all;
+close ;
+x = input ( " e n t e r x s e q " ) ;
+h = input ( "e n t e r h s e q " ) ;
+m = length ( x ) ;
+n = length ( h ) ;
+N = n +m -1;
+x=[x,zeros(1,N-m)];
+h=[h,zeros(1,N-n)];
+
+f1 = fft( x );
+disp("f1",f1);
+f2 = fft( h );
+f3 = f1 .* f2 ; 
+f4 = ifft ( f3 )
+disp ( f4 ,"DFT − IDFT method = ");
+
+subplot (3 ,1 ,1) ;
+plot2d3 ( x );
+xtitle ( " Input sequence" );
+
+subplot (3 ,1 ,2) ;
+plot2d3 (h );
+xtitle ( " Impulse sequence" ) ;
+subplot (3 ,1 ,3) ;
+plot2d3 ( f4 );
+xtitle ( " REsultant sequence ") ;
+
+
+
+
+``````````Bit Resolution 
+
+clear all;
+close all;
+x=imread("c:\users\dell\documents\cameraman.jpg");
+imshow(x);
+[r c s]=size(x);
+disp([r c s]);//S is grey level
+m=max(max(max(x)));
+disp(m);
+b=[2 3 4];
+for i=1:length(b)
+    d=2^b(i);//2 raised to no of bits to be reduced
+    z=round(x/d);//to convert in og format after display
+    figure
+    imshow(z*d)
+end
+
+
+`````````` Image Quantization
+
+clc;
+clear all;
+I=imread("C:\Users\Sumukh\Pictures\Screenshots\abcc.jpg");
+I=double(I);//analog to digital
+b=max(I)//brightest pixcel
+a=input("How many bits you want 1,2,4,6 to reduce by : ")
+c=b/(2*a);//variable value
+f=floor(I/c);//to make round off of variable value called digital value
+//disp("f=",f)
+f1=(f*255)/max(f);//divide by max od dogital value to stay around brightest pixcel
+
+figure(1)
+imshow(uint8(I))
+figure(2)
+imshow(uint8(f1))
+
+
+``````````Circular convolution 
+clc;
+clear all;
+g = input ( " e n t e r x s e q : " ) ;
+h = input ( " e n t e r h s e q : " ) ;
+n1 = length ( g ) ;
+n2 = length ( h ) ;
+n=max(n1,n2);
+n3=n1-n2;
+if(n3>0)
+h=[h,zeros(1,n3)];
+else
+g=[g,zeros(1,-n3)];
+end
+for p = 1:n
+y(p)=0;
+for q=1:n
+j=p-q+1;
+if(j <= 0)
+j = n+j;
+end
+y(p)=[y(p)+g(p)*h(j)];
+end
+end
+disp👍�
+subplot(2,1,1);
+plot(y);
+
+
+``````````` Linear Convolution 
+
+x = [1, 2, 3, 4];     // input sequence x
+h = [1, 2, 1];        // impulse response h
+
+n1 = length(x);       // length of x
+n2 = length(h);       // length of h
+N = n1 + n2 - 1;      // length of the output sequence y
+
+X = [x, zeros(1, N-n1)]; // zero-padding of x
+H = [h, zeros(1, N-n2)]; // zero-padding of h
+
+Y = zeros(1, N);      // initialize output sequence y
+
+for i = 1:N
+    for j = 1:N
+        if (i-j+1 > 0) && (i-j+1 <= n2) then
+            Y(i) = Y(i) + X(j) * H(i-j+1); // convolution operation
+        end
+    end
+end
+
+disp(Y); 
+disp(conv(X,H))             // display the output sequence y�
